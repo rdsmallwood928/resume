@@ -2,7 +2,7 @@
 
 resumeSideMenu = angular.module 'ResumeSideMenu', []
 .controller 'sideMenuController', ($scope, $ionicSideMenuDelegate, resumeChunkService, resumeStyleConstants) ->
- $scope.toggleLeft = ->
+  $scope.toggleLeft = ->
     $ionicSideMenuDelegate.toggleLeft()
 
   $scope.getChunkNames = ->
@@ -14,9 +14,9 @@ resumeSideMenu = angular.module 'ResumeSideMenu', []
   controller: 'sideMenuController'
   restrict: 'E'
 
-.controller 'sideMenuItemController', ($scope, resumeChunkService, resumeStyleConstants, resumeStyleService) ->
-  $scope.name = "Not Found"
-
+.controller 'sideMenuItemController', ($rootScope, $scope, resumeChunkService,
+                                      resumeStyleConstants, resumeStyleService,
+                                      sideMenuEvents) ->
   hoverStyle =
     'background-color': resumeStyleConstants.secondaryBackgroundColor
 
@@ -25,6 +25,7 @@ resumeSideMenu = angular.module 'ResumeSideMenu', []
 
   $scope.linkStyle = resumeStyleService.getLinkStyle()
   $scope.style = normalStyle
+  $scope.name = "Not Found"
 
   $scope.setHoverStyle = ->
     $scope.style = hoverStyle
@@ -34,6 +35,12 @@ resumeSideMenu = angular.module 'ResumeSideMenu', []
 
   $scope.getIcon = ->
     "icon #{resumeChunkService.getChunkIcon($scope.name)}"
+
+  $scope.showThisItem = ->
+    $rootScope.$broadcast sideMenuEvents.showContent, $scope.name
+
+.constant "sideMenuEvents",
+  showContent: 'SHOW_CONTENT'
 
 .directive 'resumeSideMenuItem', ->
   scope: {
@@ -45,7 +52,6 @@ resumeSideMenu = angular.module 'ResumeSideMenu', []
 
 .filter 'capitalize', ->
   (input) ->
-
     phrase = ""
 
     capitalize = (word) ->

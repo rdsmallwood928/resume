@@ -4,7 +4,8 @@ _ = require('lodash')
 
 chunkModule = angular.module 'resumeChunks', []
 
-.factory 'resumeChunkService', () ->
+.factory 'resumeChunkService', ($rootScope, sideMenuEvents) ->
+  currentChunk = 'all'
   chunks =
     'skills':
       'content':
@@ -49,8 +50,14 @@ chunkModule = angular.module 'resumeChunks', []
        'icon':
          'ion-university'
 
+  $rootScope.$on sideMenuEvents.showContent, (event, name) ->
+    currentChunk = name
+
   getCurrentChunk = ->
-    getChunkNames()
+    if currentChunk is "all"
+      return getChunkNames()
+    else
+      return [currentChunk]
 
   getChunk = (chunk) ->
     chunkLookup = chunks[chunk]
@@ -73,7 +80,7 @@ chunkModule = angular.module 'resumeChunks', []
   getChunkNames: getChunkNames
   getCurrentChunk: getCurrentChunk
 
-.controller 'chunkController', ($scope, resumeChunkService) ->
+.controller 'chunkController', ($scope, resumeChunkService, sideMenuEvents) ->
   $scope.name = 'Not Right'
   $scope.headerStyle = {
     'background-color': '#fdf6e3'
