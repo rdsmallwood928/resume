@@ -11,12 +11,15 @@ rename = require 'gulp-rename'
 sh = require 'shelljs'
 
 paths =
-  sass: './app/styles/app.scss'
-  index: './app/index.html'
+  sass: './src/styles/app.scss'
+  index: './src/index.html'
   dist: './www/'
   distcss: './www/css/'
-  coffee: './app/src/**/*.coffee'
+  coffee: './src/app/**/*.coffee'
   distcoffee: './www/js/'
+  build: './build'
+  buildcss: './build/css'
+  buildcoffee: './build/js/'
 
 gulp.task 'sass', (done) ->
   gulp.src paths.sass
@@ -25,23 +28,21 @@ gulp.task 'sass', (done) ->
     .pipe rename (path) ->
       path.basename = 'main.min'
     .pipe minifyCss()
-    .pipe gulp.dest paths.distcss
+    .pipe gulp.dest paths.buildcss
 
 gulp.task 'webserver', ->
   connect.server
     livereload: true
-    root: paths.dist
+    root: paths.build
 
 gulp.task 'copy', ->
-  gulp.src './app/index.html'
-  .pipe(gulp.dest('./www'))
-
+  gulp.src './src/**/*'
+  .pipe(gulp.dest('./build'))
 
 gulp.task 'watch', ->
   gulp.watch paths.sass, ['sass']
   gulp.watch paths.index, ['copy']
   gulp.watch paths.coffee, ['coffee']
-
 
 gulp.task 'install', ['git-check'], ->
   bower.commands.install()
@@ -65,8 +66,8 @@ gulp.task 'coffee', ->
   .pipe concat 'app.coffee'
   .pipe rename (path) ->
     path.extname = ".js"
-  .pipe gulp.dest paths.distcoffee
+  .pipe gulp.dest paths.buildcoffee
   .on 'error', gutil.log
 
-gulp.task 'build', ['copy', 'sass', 'coffee']
+gulp.task 'build', ['copy', 'sass']
 gulp.task 'default', ['build', 'webserver', 'watch']

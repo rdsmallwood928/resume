@@ -2,5 +2,4 @@
 $ionicons-font-path: "../lib/ionic/fonts" !default;
 
 // Include all of Ionic
-@import "../../www/lib/ionic/scss/ionic";
-@import "solarized-dark";
+@import "./_solarized-light.scss";
