@@ -1,0 +1,11 @@
+<ion-header-bar align-title="left" class="bar bar-header" ng-style="{'background-color': '#eee8d5'}">
+  <div class="buttons">
+    <button menu-toggle="left" class="button button-icon icon ion-navicon" ng-click="toggleLeft()"></button>
+  </div>
+  <h2 class="title solarized-main">Robert Smallwood</h2>
+</ion-header-bar>
+<ion-content class="solarized-body">
+	<div ng-repeat="chunk in getCurrentContent()">
+    <chunk name="{{chunk}}"></chunk>
+	</div>
+</ion-content>

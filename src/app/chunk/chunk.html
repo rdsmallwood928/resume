@@ -1,0 +1,9 @@
+<h1 class="item item-icon-left" ng-style="headerStyle">
+  <i class={{getIcon()}}></i>
+  {{toCaps(name)}}
+</h1>
+<div class="card solarized-body">
+  <div ng-repeat="(type, skill) in getChunk(name)" class="solarized-item item-text-wrap">
+    {{type}} -- {{skill}}
+  </div>
+</ul>
