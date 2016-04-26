@@ -16,21 +16,27 @@ chunkModule = angular.module 'resumeChunks', []
         'ion-wand'
     'employment history':
       'content':
-        'Software Engineer, OptionsCity Software Inc. -- Chicago, IL 2009-2014': "Worked on client side software for an electronic
-          trading platform.  The system utilized Swing to present large amounts of critical data about markets in real time.
-          Major accomplishments include:
+        'Software Engineer, OptionsCity Software Inc. -- Chicago, IL 2009-2014': "Worked client side on a trading platform powered by Java.
+          The system utilized Swing to present large amounts real time data to traders in real time.
+
           Implemented ability for our client to communicate with Excel.  This was done using a C# RTD Server as COM object
-          that would communicate with our client.  This allowed users to push lots of data from a client to an Excel spreadsheet.
+          that would communicate with our client.  The RTD Server would get requests from Excel and then would communicate over
+          a Socket to our client app.  This would set up subscriptions that would then push data back to the RTD server and into 
+          Excel
+
           Implemented “Reconciliation Wizard” that would allow traders to cross reference positions with clearing firms with the
           positions that our system had very quickly.  This was implemented by reading in .csv files that clients would receive
           from clearing firms and requesting position information from our server.  Then the two positions were combined into a row
           in a JTable with an adjust button that would allow for corrections.
+
           Implemented “Broker” initiative.  This involved adding coloring and aliases to trade accounts so that brokers could quickly
           identify which trade accounts orders and trades were associated with.  This was done by persisting new fields to
           the database then publishing changes to all connected users.
+
           Implemented new \“widget\”, the  Flex Option Manager, this widget was used to price Flex Options in the new energy market
           space that the business team was targeting.  Was implemented using MVP design pattern.
           Was required to write unit tests to test implementations using JUnit as well as Stub objects.
+
           Other duties included working with support to help solve issues in production.  This would involve looking at logs to
           find exceptions or debugging/troubleshooting the application with support.  This often involved profiling the application
           (VisualVM) to increase speed."
