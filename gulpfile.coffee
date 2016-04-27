@@ -32,6 +32,7 @@ gulp.task 'sass', (done) ->
 
 gulp.task 'webserver', ->
   connect.server
+    port: 8088
     livereload: true
     root: paths.build
 
