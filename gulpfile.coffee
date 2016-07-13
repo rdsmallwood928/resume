@@ -71,4 +71,5 @@ gulp.task 'coffee', ->
   .on 'error', gutil.log
 
 gulp.task 'build', ['copy', 'sass']
+gulp.task 'build:dist', ['coffee']
 gulp.task 'default', ['build', 'webserver', 'watch']
