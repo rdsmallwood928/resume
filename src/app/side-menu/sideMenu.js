@@ -46,7 +46,6 @@ const resumeSideMenu = angular.module('ResumeSideMenu', [])
   };
 
   $scope.showThisItem = () => {
-    console.log("!!! " + sideMenuEvents.showContent);
     $rootScope.$broadcast(sideMenuEvents.showContent, $scope.name);
   };
 })

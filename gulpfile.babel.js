@@ -1,5 +1,6 @@
 'use strict';
 
+import del from 'del';
 import gulp from 'gulp';
 import concat from 'gulp-concat';
 import connect from 'gulp-connect';
@@ -17,14 +18,14 @@ const paths = {
   index: './src/index.html',
   dist: './www/',
   distcss: './www/css/',
-  distcoffee: './www/js/',
-  distindex: './www/index.html',
-  coffee: './src/app/**/*.coffee',
+  distlib: './www/lib/',
   build: './build',
-  buildcss: './build/css'
+  buildcss: './build/css',
+  buildsystemjs: './build/lib/system.js',
+  buildconfigjs: './build/config.js'
 };
 
-gulp.task('sass', (done) => {
+gulp.task('sass', () => {
   return gulp.src(paths.sass)
     .pipe(sass().on('error', sass.logError))
     .pipe(concat('app.css'))
@@ -43,7 +44,7 @@ gulp.task('sass:dist', (done) => {
       path.basename = 'main.min';
     }))
     .pipe(minifyCss())
-    .pipe(gulp.dest(paths.buildcss));
+    .pipe(gulp.dest(paths.distcss));
 });
 
 gulp.task('webserver', () => {
@@ -62,15 +63,37 @@ gulp.task('webserver:dist', () => {
 });
 
 gulp.task('copy', () => {
-  console.log('Copying!');
   return gulp.src('./src/**/*')
   .pipe(gulp.dest(paths.build));
 });
 
-gulp.task('copy:dist', () => {
-  return gulp.src(paths.index)
+gulp.task('clean:build', () => {
+  return del([paths.build]);
+});
+
+gulp.task('clean:dist', () => {
+  return del([paths.dist]);
+});
+
+gulp.task('jspm_install', () => {
+  return jspm.install(true, {lock: true});
+});
+
+gulp.task('jspm_dlloader', () => {
+  return jspm.dlLoader();
+});
+
+gulp.task('copy:systemjs', () => {
+  return gulp.src(paths.buildsystemjs)
+    .pipe(gulp.dest(paths.distlib));
+});
+
+gulp.task('copy:configjs', () => {
+  return gulp.src(paths.buildconfigjs)
     .pipe(gulp.dest(paths.dist));
 });
+
+gulp.task('copy:dist', ['html_replace', 'copy:configjs', 'copy:systemjs']);
 
 gulp.task('watch', () => {
   gulp.watch(paths.sass, ['sass']);
@@ -79,14 +102,32 @@ gulp.task('watch', () => {
   return;
 });
 
+gulp.task('bundle:dist', () => {
+  return jspm.bundle('app/app.js', paths.dist+'app.min.js');
+});
+
 gulp.task('html_replace', () => {
-  return gulp.src(paths.distcoffee)
+  return gulp.src(paths.index)
     .pipe(replace("<!--BUNDLE-->", '<script src="app.min.js"></script>'))
     .pipe(gulp.dest(paths.dist));
 });
 
-gulp.task('build', ['copy', 'sass']);
-gulp.task('build:dist', ['sass:dist', 'html_replace']);
-gulp.task('serve:dist', ['build:dist', 'webserver:dist']);
-gulp.task('serve', ['build', 'webserver', 'watch']);
+gulp.task('build', [], () => {
+  return runSeq('copy', 'sass');
+});
+
+gulp.task('clean', ['clean:dist', 'clean:build']);
+
+gulp.task('build:dist', [], () => {
+  return runSeq('copy', ['jspm_dlloader', 'jspm_install'], 'sass', ['sass:dist', 'copy:dist', 'bundle:dist']);
+});
+
+gulp.task('serve:dist', [], () => {
+  return runSeq('clean', 'build:dist', 'webserver:dist');
+});
+
+gulp.task('serve', [], () => {
+  return runSeq('build', 'webserver', 'watch');
+});
+
 gulp.task('default', ['serve']);

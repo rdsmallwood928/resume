@@ -18,7 +18,6 @@
       "baseURL": "build",
       "packages": "build/lib"
     },
-    "configFile": "build/config.js",
     "dependencies": {
       "angular": "npm:angular@^1.4.9",
       "ionic": "github:driftyco/ionic-bower@^1.2.4",
@@ -38,6 +37,7 @@
     "babel-core": "^6.22.1",
     "babel-preset-es2015": "^6.22.0",
     "babel-register": "^6.22.0",
+    "del": "^2.2.2",
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.1",
     "gulp-connect": "^5.0.0",
