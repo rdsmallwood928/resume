@@ -4,6 +4,7 @@ import del from 'del';
 import gulp from 'gulp';
 import concat from 'gulp-concat';
 import connect from 'gulp-connect';
+import docker from 'gulp-docker';
 import minifyCss from 'gulp-minify-css';
 import rename from 'gulp-rename';
 import replace from 'gulp-replace';
@@ -19,8 +20,10 @@ const paths = {
   dist: './www/',
   distcss: './www/css/',
   distlib: './www/lib/',
+  distfonts: './www/lib/ionic/',
   build: './build',
   buildcss: './build/css',
+  buildfonts: './build/lib/github/driftyco/ionic-bower@1.3.1/fonts/',
   buildsystemjs: './build/lib/system.js',
   buildconfigjs: './build/config.js'
 };
@@ -88,12 +91,17 @@ gulp.task('copy:systemjs', () => {
     .pipe(gulp.dest(paths.distlib));
 });
 
+gulp.task('copy:fonts', () => {
+  return gulp.src(paths.buildfonts)
+    .pipe(gulp.dest(paths.distfonts));
+});
+
 gulp.task('copy:configjs', () => {
   return gulp.src(paths.buildconfigjs)
     .pipe(gulp.dest(paths.dist));
 });
 
-gulp.task('copy:dist', ['html_replace', 'copy:configjs', 'copy:systemjs']);
+gulp.task('copy:dist', ['html_replace', 'copy:configjs', 'copy:systemjs', 'copy:fonts']);
 
 gulp.task('watch', () => {
   gulp.watch(paths.sass, ['sass']);
