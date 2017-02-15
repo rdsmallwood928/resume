@@ -22,6 +22,8 @@ const paths = {
   distcss: './www/css/',
   distlib: './www/lib/',
   distfonts: './www/lib/github/driftyco/ionic-bower@1.3.1/fonts/',
+  distdocker: './distdocker',
+  docker: './docker',
   build: './build',
   buildcss: './build/css',
   buildfonts: './build/lib/github/driftyco/ionic-bower@1.3.1/fonts/*',
@@ -79,6 +81,10 @@ gulp.task('clean:dist', () => {
   return del([paths.dist]);
 });
 
+gulp.task('clean:distdocker', () => {
+  return del([paths.distdocker]);
+});
+
 gulp.task('jspm_install', () => {
   return jspm.install(true, {lock: true});
 });
@@ -122,23 +128,43 @@ gulp.task('html_replace', () => {
     .pipe(gulp.dest(paths.dist));
 });
 
-gulp.task('tar_dockerfile', () => {
+
+gulp.task('copy:dockerfile', () => {
   return gulp.src('./Dockerfile')
-    .pipe(tar('Dockerfile.tar'))
-    .pipe(gulp.dest(paths.build));
+    .pipe(gulp.dest(paths.distdocker));
 });
 
-gulp.task('build:dockerImage', ['tar_dockerfile'], () => {
+gulp.task('copy:dockerdist', () => {
+  return gulp.src(paths.dist+'/**/*')
+    .pipe(gulp.dest(paths.distdocker+'/www'));
+});
+
+gulp.task('copy:dockernginx', () => {
+  return gulp.src(paths.docker+'/**/*')
+    .pipe(gulp.dest(paths.distdocker+'/docker'));
+});
+
+gulp.task('tar_dockerfile', ['copy:dockerfile', 'copy:dockerdist', 'copy:dockernginx'], () => {
+  return gulp.src(paths.distdocker+'/**/*')
+    .pipe(tar('Dockerfile.tar'))
+    .pipe(gulp.dest(paths.distdocker));
+});
+
+gulp.task('build:dockerImage', ['tar_dockerfile'], (done) => {
   let docker = new Docker();
   return docker.buildImage(
-    paths.build+'/Dockerfile.tar',
-    {t: 'bert_resume_1'},
-    (err, response) => {
-      if(response) {
-        gutil.log('SUCCESS!');
-      } else {
-        gutil.err('ERROR: ' +err.message);
+    paths.distdocker + '/Dockerfile.tar',
+    {t: 'bert_resume'},
+    (err, stream) => {
+      if(err) {
+        gutil.err('ERROR: ' + err.message);
+        done();
       }
+      stream.pipe(process.stdout, {end: true});
+      stream.on('end', () => {
+        gutil.log('SUCCESS!');
+        done();
+      });
     }
   );
 });
@@ -147,7 +173,7 @@ gulp.task('build', [], () => {
   return runSeq('copy', 'sass');
 });
 
-gulp.task('clean', ['clean:dist', 'clean:build']);
+gulp.task('clean', ['clean:distdocker', 'clean:dist', 'clean:build']);
 
 gulp.task('build:docker', [], () => {
   return runSeq(
