@@ -4,12 +4,13 @@ import del from 'del';
 import gulp from 'gulp';
 import concat from 'gulp-concat';
 import connect from 'gulp-connect';
-import docker from 'gulp-docker';
+import Docker from 'dockerode';
 import minifyCss from 'gulp-minify-css';
 import rename from 'gulp-rename';
 import replace from 'gulp-replace';
 import sass from 'gulp-sass';
 import gutil from 'gulp-util';
+import tar from 'gulp-tar';
 import jspm from 'jspm';
 import runSeq from 'run-sequence';
 import sh from 'shelljs';
@@ -20,10 +21,10 @@ const paths = {
   dist: './www/',
   distcss: './www/css/',
   distlib: './www/lib/',
-  distfonts: './www/lib/ionic/',
+  distfonts: './www/lib/github/driftyco/ionic-bower@1.3.1/fonts/',
   build: './build',
   buildcss: './build/css',
-  buildfonts: './build/lib/github/driftyco/ionic-bower@1.3.1/fonts/',
+  buildfonts: './build/lib/github/driftyco/ionic-bower@1.3.1/fonts/*',
   buildsystemjs: './build/lib/system.js',
   buildconfigjs: './build/config.js'
 };
@@ -114,10 +115,32 @@ gulp.task('bundle:dist', () => {
   return jspm.bundle('app/app.js', paths.dist+'app.min.js');
 });
 
+
 gulp.task('html_replace', () => {
   return gulp.src(paths.index)
     .pipe(replace("<!--BUNDLE-->", '<script src="app.min.js"></script>'))
     .pipe(gulp.dest(paths.dist));
+});
+
+gulp.task('tar_dockerfile', () => {
+  return gulp.src('./Dockerfile')
+    .pipe(tar('Dockerfile.tar'))
+    .pipe(gulp.dest(paths.build));
+});
+
+gulp.task('build:dockerImage', ['tar_dockerfile'], () => {
+  let docker = new Docker();
+  return docker.buildImage(
+    paths.build+'/Dockerfile.tar',
+    {t: 'bert_resume_1'},
+    (err, response) => {
+      if(response) {
+        gutil.log('SUCCESS!');
+      } else {
+        gutil.err('ERROR: ' +err.message);
+      }
+    }
+  );
 });
 
 gulp.task('build', [], () => {
@@ -126,8 +149,19 @@ gulp.task('build', [], () => {
 
 gulp.task('clean', ['clean:dist', 'clean:build']);
 
+gulp.task('build:docker', [], () => {
+  return runSeq(
+    ['clean:dist', 'clean:build'],
+    ['jspm_dlloader', 'jspm_install'],
+    'copy',
+    'sass',
+    ['sass:dist', 'copy:dist'],
+    'bundle:dist',
+    'build:dockerImage');
+});
+
 gulp.task('build:dist', [], () => {
-  return runSeq('copy', ['jspm_dlloader', 'jspm_install'], 'sass', ['sass:dist', 'copy:dist', 'bundle:dist']);
+  return runSeq('clean', 'copy', ['jspm_dlloader', 'jspm_install'], 'sass', ['sass:dist', 'copy:dist', 'bundle:dist']);
 });
 
 gulp.task('serve:dist', [], () => {

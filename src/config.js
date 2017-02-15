@@ -12,6 +12,7 @@ System.config({
     "github:*": "lib/github/*",
     "npm:*": "lib/npm/*"
   },
+
   packages: {
     "app": {
       "defaultExtension": "js",
@@ -23,6 +24,7 @@ System.config({
       }
     }
   },
+
   map: {
     "angular": "npm:angular@1.5.7",
     "babel": "npm:babel-core@5.8.38",
@@ -376,8 +378,7 @@ System.config({
       "fs": "github:jspm/nodelibs-fs@0.1.2",
       "ieee754": "npm:ieee754@1.1.8",
       "isarray": "npm:isarray@1.0.0",
-      "process": "github:jspm/nodelibs-process@0.1.2",
-      "systemjs-json": "github:systemjs/plugin-json@0.1.2"
+      "process": "github:jspm/nodelibs-process@0.1.2"
     },
     "npm:chalk@1.1.3": {
       "ansi-styles": "npm:ansi-styles@2.2.1",
